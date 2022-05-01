@@ -58,10 +58,15 @@ void __interrupt() isr (void){
             CCPR1L = (uint8_t)(CCPR>>2);    // Guardamos los 8 bits mas significativos en CPR1L
             CCP1CONbits.DC1B = CCPR & 0b11; // Guardamos los 2 bits menos significativos en DC1B
         }
-        if(ADCON0bits.CHS == 1){            // Verificamos sea AN0 el canal seleccionado
+        if(ADCON0bits.CHS == 1){            // Verificamos sea AN1 el canal seleccionado
             CCPRB = map(ADRESH, IN_MIN, IN_MAX, OUT_MIN, OUT_MAX); // Valor de ancho de pulso
             CCPR2L = (uint8_t)(CCPRB>>2);    // Guardamos los 8 bits mas significativos en CPR2L
             CCP2CONbits.DC2B0 = CCPRB & 0b11; // Guardamos los 2 bits menos significativos en DC2B
+        }
+        if(ADCON0bits.CHS == 2){            // Verificamos sea AN2 el canal seleccionado
+            CCPRB = map(ADRESH, IN_MIN, IN_MAX, OUT_MIN, OUT_MAX); // Valor de ancho de pulso
+            //CCPR2L = (uint8_t)(CCPRB>>2);    
+            //CCP2CONbits.DC2B0 = CCPRB & 0b11; 
         }
         PIR1bits.ADIF = 0;                  // Limpiamos bandera de interrupción
     }
@@ -79,6 +84,9 @@ void main(void) {
                 ADCON0bits.CHS = 1;
             }
             else if(ADCON0bits.CHS == 1){
+                ADCON0bits.CHS = 2;
+            }
+            else if(ADCON0bits.CHS == 2){
                 ADCON0bits.CHS = 0;
             }
             __delay_us(40);
@@ -92,9 +100,9 @@ void main(void) {
  * CONFIGURACION 
  ------------------------------------------------------------------------------*/
 void setup(void){
-    ANSEL = 0b11;                // AN0 y AN1 como entrada analógica
+    ANSEL = 0b111;                // AN0, AN1 y AN2 como entrada analógica
     ANSELH = 0;                 // I/O digitales
-    TRISA = 0b11;                // AN0 y AN1 como entrada
+    TRISA = 0b111;                // AN0, AN1 y AN2 como entrada
     PORTA = 0;
     
     // Configuración reloj interno
